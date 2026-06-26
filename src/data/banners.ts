@@ -9,23 +9,32 @@ export interface Banner {
 export const banners: Banner[] = [
   {
     id: 1,
-    imagem: "https://picsum.photos/1200/400?random=10",
-    titulo: "Promoção de Lançamento",
-    subtitulo: "Aproveite até 30% de desconto em produtos selecionados",
+    imagem: "/publicidades/arduino.jpg",
+    titulo: "Placas Arduino",
+    subtitulo: "Microcontroladores para todos os teus projetos eletrônicos.",
     textoBotao: "Ver Ofertas",
   },
   {
     id: 2,
-    imagem: "https://picsum.photos/1200/400?random=11",
-    titulo: "Frete Grátis",
-    subtitulo: "Para compras acima de R$ 200",
+    imagem: "/publicidades/raspberryPi.jpg",
+    titulo: "Raspberry Pi",
+    subtitulo: "Mini computadores para automação, IoT e muito mais.",
     textoBotao: "Comprar Agora",
   },
   {
     id: 3,
-    imagem: "https://picsum.photos/1200/400?random=12",
-    titulo: "Novos Produtos",
-    subtitulo: "Confira os lançamentos da semana",
+    imagem: "/publicidades/processadores.jpg",
+    titulo: "Processadores e Semicondutores",
+    subtitulo: "Componentes essenciais para os teus circuitos.",
     textoBotao: "Ver Novidades",
   },
+  {
+    id: 4,
+    imagem: "/publicidades/placas-personalizadas.jpg",
+    titulo: "Placas Personalizadas",
+    subtitulo: "Fabricamos PCBs sob medida para o teu projeto.",
+    textoBotao: "Aproveitar",
+  },
 ];
+
+export const objetivoLoja = "Componentes eletrônicos para os teus projetos — Resistores, capacitores, semicondutores, placas e muito mais. Tudo o que precisas para dar vida aos teus circuitos.";

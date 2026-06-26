@@ -3,6 +3,11 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Header from "./components/header";
 import ParticulasFundo from "./components/ParticulasFundo";
+import { CarrinhoProvider } from "./contexts/CarrinhoContext";
+import { AvaliacaoProvider } from "./contexts/AvaliacaoContext";
+import { HistoricoProvider } from "./contexts/HistoricoContext";
+import { AuthProvider } from "./contexts/AuthContext";
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,8 +20,11 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Catalogo de Vendas",
-  description: "Os melhores produtos para você",
+  title: "MagicX",
+  description: "Componentes eletrônicos para os teus projetos",
+  icons: {
+    icon: "/MagicX_logo.png",
+  },
 };
 
 export default function RootLayout({
@@ -30,14 +38,22 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        <AuthProvider>
+        <CarrinhoProvider>
+        <HistoricoProvider>
+        <AvaliacaoProvider>
         <ParticulasFundo />
         <Header />
         {children}
         <footer className="bg-gray-900 text-gray-400 py-8 mt-auto">
           <div className="max-w-6xl mx-auto px-4 text-center text-sm">
-            <p>© 2026 Catálogo de Vendas. Todos os direitos reservados.</p>
+            <p>© 2026 MagicX. Todos os direitos reservados.</p>
           </div>
         </footer>
+        </AvaliacaoProvider>
+        </HistoricoProvider>
+        </CarrinhoProvider>
+        </AuthProvider>
       </body>
     </html>
   );

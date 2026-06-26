@@ -5,75 +5,106 @@ interface Produto {
     precoOriginal?: number;
     descricao: string;
     imagem: string;
+    categoria: string;
+    estoque: number;
 }
 
-export const produtos: Produto[] = [
+// Resistores
+const resistores: Produto[] = [
     {
         id: 1,
-        nome: "Power Bank",
-        preco: 88.90,
-        precoOriginal: 120.00,
-        descricao: "Power bank portátil de alta capacidade, ideal para carregar seus dispositivos em movimento.",
-        imagem: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRsPdNYrHHdheBP0SIBHZ5bFO-V_B_bQFrr_FiNpIK7QGEpCvU9YJaQ_XuU&s=10"
+        nome: "Kit de Resistores 200 Unidades",
+        preco: 2500.00, precoOriginal: 3500.00,
+        descricao: "Kit com 20 valores diferentes, 10 unidades cada. Ideal para iniciantes em eletrônica.",
+        imagem: "/produtos/resistores/kit-resistor.png",
+        categoria: "Resistores",
+        estoque: 15,
     },
     {
         id: 2,
-        nome: "Joystick PS5",
-        preco: 399.90,
-        descricao: "Controle sem fio com resposta tátil e gatilhos adaptáveis.",
-        imagem: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT0E-kKwX4kMnvcTd_B7beqpci8pm7XA2MqzuN-NFVRNdABqjWnFKvxP8U&s=10"
+        nome: "Kit de Resistores 300 Unidades",
+        preco: 3500.00, precoOriginal: 4500.00,
+        descricao: "Kit com 30 valores diferentes, 10 unidades cada. Perfeito para projetos variados.",
+        imagem: "/produtos/resistores/kit.resistor2.png",
+        categoria: "Resistores",
+        estoque: 10,
     },
     {
         id: 3,
-        nome: "Mini Caixa Zenite",
-        preco: 30.90,
-        precoOriginal: 49.00,
-        descricao: "Caixa de som portátil Bluetooth com graves potentes.",
-        imagem: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ0ggTcEY4KjUSjiuVBKwiNC6QWmvwKeC85Gz16r8PHfA&s=10"
+        nome: "Kit de Resistores 600 Unidades",
+        preco: 5500.00,
+        descricao: "Kit completo com 30 valores, 20 unidades cada. Para quem precisa de quantidade.",
+        imagem: "/produtos/resistores/kit-resistor3.png",
+        categoria: "Resistores",
+        estoque: 5,
     },
     {
         id: 4,
-        nome: "Fone Bluetooth",
-        preco: 149.90,
-        precoOriginal: 199.90,
-        descricao: "Fone sem fio com cancelamento de ruído ativo.",
-        imagem: "https://picsum.photos/400/400?random=4"
+        nome: "Kit de Resistores 1200 Unidades",
+        preco: 9500.00, precoOriginal: 12000.00,
+        descricao: "Kit profissional com 60 valores, 20 unidades cada. Para laboratório e oficina.",
+        imagem: "/produtos/resistores/kit-resistor.png",
+        categoria: "Resistores",
+        estoque: 3,
     },
     {
         id: 5,
-        nome: "Mouse Gamer RGB",
-        preco: 179.90,
-        descricao: "Mouse com sensor de 16000 DPI e iluminação personalizável.",
-        imagem: "https://picsum.photos/400/400?random=5"
+        nome: "Resistor 100Ω 1/4W (Pacote 50un)",
+        preco: 500.00,
+        descricao: "Resistor de filme de carbono 100Ω, tolerância 5%. Essencial para proteção de LEDs.",
+        imagem: "/produtos/resistores/resistor1.png",
+        categoria: "Resistores",
+        estoque: 20
     },
     {
         id: 6,
-        nome: "Teclado Mecânico",
-        preco: 249.90,
-        precoOriginal: 299.90,
-        descricao: "Teclado mecânico switch azul com retroiluminação LED.",
-        imagem: "https://picsum.photos/400/400?random=6"
+        nome: "Resistor 220Ω 1/4W (Pacote 50un)",
+        preco: 500.00,
+        descricao: "Resistor de filme de carbono 220Ω. Ideal para LEDs com Arduino e ESP32.",
+        imagem: "/produtos/resistores/resistor2.png",
+        categoria: "Resistores",
+        estoque: 20
     },
     {
         id: 7,
-        nome: "Smartwatch Pro",
-        preco: 459.90,
-        descricao: "Relógio inteligente com monitor cardíaco e GPS integrado.",
-        imagem: "https://picsum.photos/400/400?random=7"
+        nome: "Resistor 1kΩ 1/4W (Pacote 50un)",
+        preco: 500.00,
+        descricao: "Resistor 1kΩ de uso geral. Proteção de bases de transistores.",
+        imagem: "/produtos/resistores/resistor3.png",
+        categoria: "Resistores",
+        estoque: 20
     },
     {
         id: 8,
-        nome: "Hub USB-C 7 em 1",
-        preco: 129.90,
-        precoOriginal: 169.90,
-        descricao: "Adaptador USB-C com HDMI, leitor de cartão e 3 portas USB.",
-        imagem: "https://picsum.photos/400/400?random=8"
+        nome: "Resistor 10kΩ 1/4W (Pacote 50un)",
+        preco: 500.00,
+        descricao: "Resistor 10kΩ. Essencial para pull-up e pull-down em circuitos digitais.",
+        imagem: "/produtos/resistores/resistor4.png",
+        categoria: "Resistores",
+        estoque: 34
     },
-    {
-        id: 9,
-        nome: "Webcam Full HD",
-        preco: 199.90,
-        descricao: "Câmera para streaming com microfone integrado e autofoco.",
-        imagem: "https://picsum.photos/400/400?random=9"
-    }
+];
+
+// Capacitores (vazio por enquanto)
+const capacitores: Produto[] = [];
+
+// Semicondutores (vazio por enquanto)
+const semicondutores: Produto[] = [];
+
+// Circuitos Integrados (vazio por enquanto)
+const circuitosIntegrados: Produto[] = [];
+
+// Conectores e Jumpers (vazio por enquanto)
+const conectores: Produto[] = [];
+
+// Ferramentas (vazio por enquanto)
+const ferramentas: Produto[] = [];
+
+export const produtos: Produto[] = [
+    ...resistores,
+    ...capacitores,
+    ...semicondutores,
+    ...circuitosIntegrados,
+    ...conectores,
+    ...ferramentas,
 ];
