@@ -1,5 +1,6 @@
 "use client";
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { supabase } from "@/app/lib/supabase";
 import { useAuth } from "./AuthContext";
 
 type Comentario = {
@@ -8,16 +9,18 @@ type Comentario = {
   texto: string;
   nota: number;
   data: string;
+  email: string;
+  imagens: string[];
 };
 
 type ProdutoAvaliacoes = {
   comentarios: Comentario[];
-  avaliadores: string[]; // emails que já avaliaram
+  avaliadores: string[];
 };
 
 type AvaliacaoContextType = {
   getAvaliacoes: (produtoId: number) => ProdutoAvaliacoes;
-  adicionarComentario: (produtoId: number, texto: string, nota: number) => boolean;
+  adicionarComentario: (produtoId: number, texto: string, nota: number, imagens: string[]) => Promise<boolean>;
   getMedia: (produtoId: number) => number;
 };
 
@@ -25,43 +28,53 @@ const AvaliacaoContext = createContext<AvaliacaoContextType | null>(null);
 
 export function AvaliacaoProvider({ children }: { children: ReactNode }) {
   const { usuario } = useAuth();
-  const chave = "avaliacoes_loja";
   const [dados, setDados] = useState<Record<number, ProdutoAvaliacoes>>({});
 
-  useEffect(() => {
-    const saved = localStorage.getItem(chave);
-    if (saved) setDados(JSON.parse(saved));
-  }, []);
+  const carregarTodas = async () => {
+    const { data } = await supabase.from("avaliacoes").select("*").order("id", { ascending: false });
+    if (data) {
+      const agrupado: Record<number, ProdutoAvaliacoes> = {};
+      data.forEach((c: any) => {
+        if (!agrupado[c.produto_id]) agrupado[c.produto_id] = { comentarios: [], avaliadores: [] };
+        agrupado[c.produto_id].comentarios.push({
+          id: c.id,
+          nome: c.nome,
+          texto: c.texto,
+          nota: c.nota,
+          data: c.data,
+          email: c.email,
+          imagens: c.imagens || [],
+        });
+        if (c.nota > 0) agrupado[c.produto_id].avaliadores.push(c.email);
+      });
+      setDados(agrupado);
+    }
+  };
 
-  useEffect(() => {
-    localStorage.setItem(chave, JSON.stringify(dados));
-  }, [dados]);
+  useEffect(() => { carregarTodas(); }, []);
 
   const getAvaliacoes = (produtoId: number): ProdutoAvaliacoes => {
     return dados[produtoId] || { comentarios: [], avaliadores: [] };
   };
 
-  const adicionarComentario = (produtoId: number, texto: string, nota: number) => {
+  const adicionarComentario = async (produtoId: number, texto: string, nota: number, imagens: string[]) => {
     if (!usuario) return false;
     const atual = getAvaliacoes(produtoId);
     const jaAvaliou = atual.avaliadores.includes(usuario.email);
 
-    const novoComentario: Comentario = {
+    const { error } = await supabase.from("avaliacoes").insert({
       id: Date.now(),
+      produto_id: produtoId,
       nome: usuario.nome,
+      email: usuario.email,
       texto,
       nota: jaAvaliou ? 0 : nota,
       data: new Date().toLocaleDateString("pt-PT"),
-    };
+      imagens,
+    });
 
-    setDados(prev => ({
-      ...prev,
-      [produtoId]: {
-        comentarios: [...atual.comentarios, novoComentario],
-        avaliadores: jaAvaliou ? atual.avaliadores : [...atual.avaliadores, usuario.email],
-      },
-    }));
-
+    if (error) return false;
+    await carregarTodas();
     return true;
   };
 

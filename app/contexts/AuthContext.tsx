@@ -1,57 +1,66 @@
 "use client";
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { supabase } from "@/app/lib/supabase";
 
 type Usuario = {
   email: string;
   nome: string;
+  admin: boolean;
 };
 
 type AuthContextType = {
   usuario: Usuario | null;
-  login: (email: string, senha: string) => boolean;
-  logout: () => void;
-  registrar: (email: string, senha: string, nome: string) => boolean;
+  login: (email: string, senha: string) => Promise<boolean>;
+  logout: () => Promise<void>;
+  registrar: (email: string, senha: string, nome: string, telefone: string, morada: string) => Promise<{ erro?: string; sucesso?: boolean }>;
 };
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [usuario, setUsuario] = useState<Usuario | null>(null);
-  const [contas, setContas] = useState<Record<string, { senha: string; nome: string }>>({});
 
   useEffect(() => {
-    const saved = localStorage.getItem("contas");
-    if (saved) setContas(JSON.parse(saved));
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        setUsuario({
+          email: session.user.email!,
+          nome: session.user.user_metadata?.nome || "Usuário",
+          admin: session.user.email === "admin@magicx.com",
+        });
+      }
+    });
   }, []);
 
-  useEffect(() => {
-    const saved = localStorage.getItem("usuario");
-    if (saved) setUsuario(JSON.parse(saved));
-  }, []);
-
-  const login = (email: string, senha: string) => {
-    const conta = contas[email];
-    if (conta && conta.senha === senha) {
-      setUsuario({ email, nome: conta.nome });
-      localStorage.setItem("usuario", JSON.stringify({ email, nome: conta.nome }));
-      return true;
-    }
-    return false;
-  };
-
-  const registrar = (email: string, senha: string, nome: string) => {
-    if (contas[email]) return false;
-    const novasContas = { ...contas, [email]: { senha, nome } };
-    setContas(novasContas);
-    localStorage.setItem("contas", JSON.stringify(novasContas));
-    setUsuario({ email, nome });
-    localStorage.setItem("usuario", JSON.stringify({ email, nome }));
+  const login = async (email: string, senha: string) => {
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password: senha });
+    if (error || !data.user) return false;
+    setUsuario({
+      email: data.user.email!,
+      nome: data.user.user_metadata?.nome || "Usuário",
+      admin: data.user.email === "admin@magicx.com",
+    });
     return true;
   };
 
-  const logout = () => {
+  const registrar = async (email: string, senha: string, nome: string, telefone: string, morada: string) => {
+    if (senha.length < 6) return { erro: "A senha deve ter pelo menos 6 caracteres." };
+    if (!email.includes("@") || !email.includes(".")) return { erro: "Email inválido." };
+
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password: senha,
+      options: { data: { nome, telefone, morada } },
+    });
+
+    if (error) return { erro: error.message };
+    setUsuario({ email: data.user!.email!, nome, admin: false });
+    return { sucesso: true };
+  };
+
+  const logout = async () => {
+    await supabase.auth.signOut();
     setUsuario(null);
-    localStorage.removeItem("usuario");
   };
 
   return (

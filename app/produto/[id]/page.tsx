@@ -1,30 +1,36 @@
 "use client";
 import { useParams } from "next/navigation";
-import { produtos } from "@/src/data/produtos";
+import { useAdmin } from "@/app/contexts/AdminContext";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useCarrinho } from "@/app/contexts/CarrinhoContext";
 import { useAvaliacao } from "@/app/contexts/AvaliacaoContext";
 import { useAuth } from "@/app/contexts/AuthContext";
+import VisualizadorImagens from "../../components/VisualizadorImagens";
 
 export default function ProdutoPage() {
   const params = useParams();
-  const produto = produtos.find(p => p.id === Number(params.id));
+  const { produtos } = useAdmin();
+  const produto = produtos.find((p) => p.id === Number(params.id));
   const { adicionar } = useCarrinho();
   const [noCarrinho, setNoCarrinho] = useState(false);
   const [quantidade, setQuantidade] = useState(1);
-  const estoque = produto?.estoque || 0;
 
   const { usuario } = useAuth();
   const { getAvaliacoes, adicionarComentario, getMedia } = useAvaliacao();
   const [mostrarForm, setMostrarForm] = useState(false);
   const [texto, setTexto] = useState("");
   const [nota, setNota] = useState(0);
-  const avaliacoes = getAvaliacoes(produto!.id);
-  const media = getMedia(produto!.id);
-  const jaAvaliou = avaliacoes.avaliadores.includes(usuario?.email || "");
+  const [imagens, setImagens] = useState<string[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [visualizarImagens, setVisualizarImagens] = useState<string[] | null>(null);
 
   if (!produto) return <p>Produto não encontrado</p>;
+
+  const estoque = produto.estoque || 0;
+  const avaliacoes = getAvaliacoes(produto.id);
+  const media = getMedia(produto.id);
+  const jaAvaliou = avaliacoes.avaliadores.includes(usuario?.email || "");
 
   const handleAdicionar = () => {
     for (let i = 0; i < quantidade; i++) {
@@ -32,6 +38,28 @@ export default function ProdutoPage() {
     }
     setNoCarrinho(true);
     setTimeout(() => setNoCarrinho(false), 2000);
+  };
+
+  const handleImagensUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+    const novasImagens: string[] = [];
+    let carregadas = 0;
+    Array.from(files).forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        novasImagens.push(reader.result as string);
+        carregadas++;
+        if (carregadas === files.length) {
+          setImagens((prev) => [...prev, ...novasImagens]);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const removerImagem = (index: number) => {
+    setImagens((prev) => prev.filter((_, i) => i !== index));
   };
 
   return (
@@ -62,7 +90,7 @@ export default function ProdutoPage() {
             <div className="flex items-center border border-gray-300 dark:border-gray-600 rounded-lg">
               <button onClick={() => setQuantidade(q => Math.max(1, q - 1))}
                 className="px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">−</button>
-              <input type="number" value={quantidade} 
+              <input type="number" value={quantidade}
                 onChange={(e) => setQuantidade(Math.min(estoque, Math.max(1, Number(e.target.value))))}
                 className="w-14 text-center py-2 bg-transparent text-gray-900 dark:text-white outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
               <button onClick={() => setQuantidade(q => Math.min(estoque, q + 1))}
@@ -76,23 +104,18 @@ export default function ProdutoPage() {
                 {noCarrinho ? "✓ Adicionado" : "Adicionar ao Carrinho"}
               </button>
             ) : (
-              <p className="px-6 py-3 rounded-lg font-bold text-white bg-red-500 text-center">
-                Fora de Estoque
-              </p>
+              <p className="px-6 py-3 rounded-lg font-bold text-white bg-red-500 text-center">Fora de Estoque</p>
             )}
           </div>
         </div>
       </div>
 
-      {/* Seção de Avaliações */}
       <div className="max-w-4xl mx-auto px-4 py-8 border-t border-gray-200 dark:border-gray-700">
         <h2 className="text-xl font-bold mb-4">Avaliações</h2>
 
         <div className="flex items-center gap-2 mb-4">
           <div className="text-yellow-400 text-2xl">
-            {[1, 2, 3, 4, 5].map((e) => (
-              <span key={e}>{e <= Math.round(media) ? "⭐" : "☆"}</span>
-            ))}
+            {[1, 2, 3, 4, 5].map((e) => (<span key={e}>{e <= Math.round(media) ? "⭐" : "☆"}</span>))}
           </div>
           <span className="text-gray-500">({avaliacoes.comentarios.length} comentários)</span>
         </div>
@@ -110,10 +133,11 @@ export default function ProdutoPage() {
         {mostrarForm && (
           <form onSubmit={(e) => {
             e.preventDefault();
-            adicionarComentario(produto!.id, texto, nota);
+            adicionarComentario(produto.id, texto, nota, imagens);
             setMostrarForm(false);
             setTexto("");
             setNota(0);
+            setImagens([]);
           }} className="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg mb-6">
             <p className="text-sm text-gray-500 mb-2">Comentando como <strong>{usuario?.nome}</strong></p>
             <textarea placeholder="Seu comentário" value={texto} onChange={(e) => setTexto(e.target.value)}
@@ -129,9 +153,27 @@ export default function ProdutoPage() {
               </div>
             )}
 
+            <div className="mb-2">
+              <input type="file" accept="image/*" multiple ref={fileInputRef} onChange={handleImagensUpload} className="hidden" />
+              <button type="button" onClick={() => fileInputRef.current?.click()}
+                className="text-sm text-blue-500 hover:underline">📷 Adicionar fotos</button>
+              {imagens.length > 0 && (
+                <div className="flex gap-2 mt-2 flex-wrap">
+                  {imagens.map((img, i) => (
+                    <div key={i} className="relative">
+                      <img src={img} className="w-16 h-16 object-cover rounded" />
+                      <button type="button" onClick={() => removerImagem(i)}
+                        className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 text-xs flex items-center justify-center">✕</button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <div className="flex gap-2">
               <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">Enviar</button>
-              <button type="button" onClick={() => setMostrarForm(false)} className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600">Cancelar</button>
+              <button type="button" onClick={() => { setMostrarForm(false); setImagens([]); }}
+                className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600">Cancelar</button>
             </div>
           </form>
         )}
@@ -148,6 +190,14 @@ export default function ProdutoPage() {
                   <span className="text-gray-400 text-xs">{c.data}</span>
                 </div>
                 <p className="text-gray-600 dark:text-gray-300 mt-1">{c.texto}</p>
+                {c.imagens && c.imagens.length > 0 && (
+                  <div className="flex gap-2 mt-2 flex-wrap">
+                    {c.imagens.map((img, i) => (
+                      <img key={i} src={img} className="w-20 h-20 object-cover rounded cursor-pointer"
+                        onClick={() => setVisualizarImagens(c.imagens)} />
+                    ))}
+                  </div>
+                )}
               </div>
             ))}
           </div>

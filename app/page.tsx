@@ -1,11 +1,15 @@
 "use client";
 import { useState } from "react";
-import { produtos } from "@/src/data/produtos";
 import Link from "next/link";
 import BannerCarrossel from "./components/BannerCarrossel";
 import { banners } from "@/src/data/banners";
+import BotaoAdmin from "./components/BotaoAdmin";
+import ModalAdmin from "./components/ModalAdmin";
+import { useAdmin } from "./contexts/AdminContext"
 
 export default function Home() {
+  const { produtos } = useAdmin();
+  const [adminAberto, setAdminAberto] = useState(false);
   const [busca, setBusca] = useState("");
   const produtosFiltrados = produtos.filter(p =>
     p.nome.toLowerCase().includes(busca.toLowerCase())
@@ -48,6 +52,8 @@ export default function Home() {
           </Link>
         ))}
       </div>
+      <BotaoAdmin onAbrir={() => setAdminAberto(true)} />
+      {adminAberto && <ModalAdmin onClose={() => setAdminAberto(false)} />}
     </div>
   );
 }

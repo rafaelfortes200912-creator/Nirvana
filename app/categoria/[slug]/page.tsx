@@ -1,4 +1,6 @@
-import { produtos } from "@/src/data/produtos";
+"use client";
+import { useParams } from "next/navigation";
+import { useAdmin } from "@/app/contexts/AdminContext";
 import Link from "next/link";
 
 const nomesCategorias: Record<string, string> = {
@@ -10,8 +12,10 @@ const nomesCategorias: Record<string, string> = {
   ferramentas: "Ferramentas",
 };
 
-export default async function CategoriaPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params;
+export default function CategoriaPage() {
+  const params = useParams();
+  const slug = params.slug as string;
+  const { produtos } = useAdmin();
   const nomeCategoria = nomesCategorias[slug] || slug;
   const produtosFiltrados = produtos.filter(
     (p) => p.categoria.toLowerCase() === nomeCategoria.toLowerCase()

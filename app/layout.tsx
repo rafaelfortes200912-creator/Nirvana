@@ -7,7 +7,7 @@ import { CarrinhoProvider } from "./contexts/CarrinhoContext";
 import { AvaliacaoProvider } from "./contexts/AvaliacaoContext";
 import { HistoricoProvider } from "./contexts/HistoricoContext";
 import { AuthProvider } from "./contexts/AuthContext";
-
+import { AdminProvider } from "./contexts/AdminContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,6 +39,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <AuthProvider>
+        <AdminProvider>
         <CarrinhoProvider>
         <HistoricoProvider>
         <AvaliacaoProvider>
@@ -53,6 +54,7 @@ export default function RootLayout({
         </AvaliacaoProvider>
         </HistoricoProvider>
         </CarrinhoProvider>
+        </AdminProvider>
         </AuthProvider>
       </body>
     </html>

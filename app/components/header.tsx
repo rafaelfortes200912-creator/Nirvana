@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { useCarrinho } from "../contexts/CarrinhoContext";
 import { useAuth } from "../contexts/AuthContext";
@@ -19,10 +19,11 @@ const categorias = [
 ];
 
 export default function Header() {
+  const router = useRouter();
   const pathname = usePathname();
   const [menuAberto, setMenuAberto] = useState(false);
   const { quantidadeTotal } = useCarrinho();
-  const { usuario, logout } = useAuth();
+  const { usuario } = useAuth();
   const [carrinhoAberto, setCarrinhoAberto] = useState(false);
   const [historicoAberto, setHistoricoAberto] = useState(false);
   const [loginAberto, setLoginAberto] = useState(false);
@@ -43,10 +44,10 @@ export default function Header() {
           </div>
 
           <div className="flex items-center gap-3 flex-shrink-0">
-            <button onClick={() => usuario ? logout() : setLoginAberto(true)}
+            <button onClick={() => usuario ? router.push("/perfil") : setLoginAberto(true)}
               className="flex items-center gap-1 hover:text-gray-300 transition-colors text-xl"
-              title={usuario ? `Sair (${usuario.nome})` : "Entrar"}>
-              {usuario ? "🚪" : "👤"}
+              title={usuario ? `Perfil (${usuario.nome})` : "Entrar"}>
+              👤
             </button>
             {usuario && <span className="text-xs text-gray-400 hidden sm:block">{usuario.nome}</span>}
             <button onClick={() => setHistoricoAberto(!historicoAberto)} className="hover:text-gray-300 transition-colors text-2xl">
