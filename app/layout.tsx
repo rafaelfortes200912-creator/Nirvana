@@ -22,8 +22,11 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "MagicX",
   description: "Componentes eletrônicos para os teus projetos",
-  icons: {
-    icon: "/MagicX_logo.png",
+    icons: {
+    icon: [
+      { url: "/MagicX_logo.png", type: "image/png" },
+      { url: "/favicon.ico" },
+    ],
   },
 };
 
